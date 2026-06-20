@@ -7,6 +7,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
 
 permissions:
   contents: read
@@ -47,17 +49,31 @@ jobs:
   cfx-portal-upload:
     name: GitHub Actions Test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
 
     steps:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
 
+      - name: Update Test Asset Version
+        id: update-test-version
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          workdir="$(mktemp -d)"
+
+          unzip -q ./test.zip -d "$workdir"
+          sed -i -E "s/^version ['\"][^'\"]+['\"]/version \"${version}\"/" "$workdir/test/fxmanifest.lua"
+
+          rm ./test.zip
+          (cd "$workdir" && zip -qr "$GITHUB_WORKSPACE/test.zip" test)
+
       - name: Test Local Action
         id: cfx-portal-upload
         uses: ./
         with:
+          assetName: testfs
           cookie: ${{ secrets.FORUM_COOKIE }}
           zipPath: ./test.zip
           assetId: 489345
