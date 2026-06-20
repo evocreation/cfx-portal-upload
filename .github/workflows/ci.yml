@@ -103,7 +103,6 @@ jobs:
         if: steps.release-version.outputs.should_upload == 'true'
         uses: ./
         with:
-          assetName: testfs
           cookie: ${{ secrets.FORUM_COOKIE }}
           zipPath: ./test.zip
           assetId: 489345
