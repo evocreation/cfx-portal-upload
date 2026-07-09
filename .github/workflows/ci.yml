@@ -55,7 +55,9 @@ jobs:
   cfx-portal-upload:
     name: GitHub Actions Test
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    if:
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success'
 
     steps:
       - name: Checkout
